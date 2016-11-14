@@ -21,8 +21,9 @@ local tapText
 --platform.x = display.contentCenterX
 --platform.y = display.contentHeight - 25
 
---load balloon
-local balloon
+--load ball
+local ball
+local ball2
 
 --borders
 local border
@@ -38,11 +39,22 @@ local math, physics = require("math"), require("physics")
 
 function startPhysics( start )
 	if (start) then
-		physics.addBody(balloon, "dynamic", { radius = 54, bounce = 0.3})
+		physics.addBody(ball, "dynamic", { radius = 38, bounce = 0.3})
 		physics.addBody(border, "static")
 		physics.addBody(border2, "static")
 		physics.addBody(horizontal, "static")
 	end
+end
+
+function addBall( )
+	ball2 = display.newImageRect(mainGroup, "basketball.png", 75, 75)
+	ball2.myName = "ball2"
+	ball2.x = display.contentCenterX 
+	ball2.y = display.contentCenterY - 200
+	ball2.alpha = 0.8
+
+	physics.addBody(ball2, "dynamic", { radius = 35, bounce = 0.3})
+	ball2:addEventListener("touch", pushBall2)
 end
 
 --add physics to objects
@@ -51,30 +63,57 @@ end
 --physics.addBody(border, "static")
 --physics.addBody(border2, "static")
 
-local function pushBalloon( event )
+local function pushBall( event )
 	startPhysics(true)
 
 	if (event.phase == "began") then
-		deltaX = event.x - balloon.x
-		deltaY = event.y - balloon.y
+		deltaX = event.x - ball.x
+		deltaY = event.y - ball.y
 		normDeltaX = deltaX / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
 		normDeltaY = deltaY / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
 
 		angle = math.atan2( deltaY, deltaX ) * 180 / math.pi
 
-		balloon:applyLinearImpulse( normDeltaX * -1, normDeltaY * -1, balloon.x, balloon.y )
+		ball:applyLinearImpulse( normDeltaX * -0.5, normDeltaY * -0.5, ball.x, ball.y )
 
 		tapCount = tapCount +1
 		tapText.text = tapCount
 
-		if (gravity <= 25) then
+		if (gravity <= 25 and (tapCount % 5 == 0)) then
+			gravity = gravity + .20
+			physics.setGravity(0, gravity)
+			print(gravity)
+		end
+
+		if (tapCount == 10) then
+			addBall() 
+		end
+	end
+end
+
+function pushBall2( event )
+	--startPhysics(true)
+
+	if (event.phase == "began") then
+		deltaX = event.x - ball2.x
+		deltaY = event.y - ball2.y
+		normDeltaX = deltaX / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
+		normDeltaY = deltaY / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
+
+		angle = math.atan2( deltaY, deltaX ) * 180 / math.pi
+
+		ball2:applyLinearImpulse( normDeltaX * -0.5, normDeltaY * -0.5, ball2.x, ball2.y )
+
+		tapCount = tapCount +1
+		tapText.text = tapCount
+
+		if (gravity <= 25 and (tapCount % 5 == 0)) then
 			gravity = gravity + .20
 			physics.setGravity(0, gravity)
 			print(gravity)
 		end
 	end
 end
-
 --SCENES
 function scene:create( event )
 
@@ -95,11 +134,11 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	balloon = display.newImageRect(mainGroup, "basketball.png", 112, 112)
-	balloon.myName = "ball"
-	balloon.x = display.contentCenterX
-	balloon.y = display.contentCenterY
-	balloon.alpha = 0.8
+	ball = display.newImageRect(mainGroup, "basketball.png", 75, 75)
+	ball.myName = "ball"
+	ball.x = display.contentCenterX
+	ball.y = display.contentCenterY
+	ball.alpha = 0.8
 
 --borders
 	border = display.newImageRect(backGroup, "border.png", 1, 1000)
@@ -126,7 +165,8 @@ local function onCollision( event )
 
 		--print(obj1.myName .. obj2.myName)
 
-		if (obj1.myName == "horizontal" and obj2.myName == "ball") then
+		if ((obj1.myName == "horizontal" and obj2.myName == "ball") or
+			(obj1.myName == "horizontal" and obj2.myName == "ball2")) then
 			display.remove(obj2)
 			endGame()
 		end
@@ -152,7 +192,7 @@ function scene:show( event )
 		-- Code here runs when the scene is entirely on screen
 		physics.start();
 		Runtime:addEventListener("collision", onCollision )
-		balloon:addEventListener("touch", pushBalloon)
+		ball:addEventListener("touch", pushBall)
 	end
 end
 
