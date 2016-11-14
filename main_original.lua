@@ -28,9 +28,12 @@ local balloon
 local border
 local border2
 
+--horizontal
+local horizontal
+
 --load physics
 local math, physics = require("math"), require("physics")
-physics.start()
+--physics.start()
 --physics.setGravity(0, gravity)
 
 function startPhysics( start )
@@ -38,6 +41,7 @@ function startPhysics( start )
 		physics.addBody(balloon, "dynamic", { radius = 54, bounce = 0.3})
 		physics.addBody(border, "static")
 		physics.addBody(border2, "static")
+		physics.addBody(horizontal, "static")
 	end
 end
 
@@ -76,7 +80,7 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-	physics.pause()
+	--physics.pause()
 
 	backGroup = display.newGroup()
 	sceneGroup:insert( backGroup )
@@ -92,6 +96,7 @@ function scene:create( event )
 	background.y = display.contentCenterY
 
 	balloon = display.newImageRect(mainGroup, "basketball.png", 112, 112)
+	balloon.myName = "ball"
 	balloon.x = display.contentCenterX
 	balloon.y = display.contentCenterY
 	balloon.alpha = 0.8
@@ -105,16 +110,33 @@ function scene:create( event )
 	border.x = display.contentWidth
 	border.y = display.contentCenterY
 
+	horizontal = display.newImageRect(backGroup, "horizontal.png", 1000, 1)
+	horizontal.myName = "horizontal"
+	horizontal.x = display.contentWidth
+	horizontal.y = display.contentHeight + 100
+
 	tapText = display.newText(uiGroup, tapCount, display.contentCenterX, 20, native.systemFont, 40)
 	tapText:setFillColor(0 ,0, 0)
-
-	balloon:addEventListener("touch", pushBalloon)
 end
 
-local function endGame()
+local function onCollision( event )
+	if ( event.phase == "began" ) then
+		local obj1 = event.object1
+		local obj2 = event.object2
+
+		--print(obj1.myName .. obj2.myName)
+
+		if (obj1.myName == "horizontal" and obj2.myName == "ball") then
+			display.remove(obj2)
+			endGame()
+		end
+	end
+end
+
+
+function endGame()
 	composer.removeScene( "menu" )
-	local options = { effect = "crossFade", time = 800, params = { fromScene = "main_original"} }
-	composer.gotoScene( "menu", options )
+	composer.gotoScene( "menu", {time=800, effect="crossFade"} )
 end
 
 -- show()
@@ -129,6 +151,8 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 		physics.start();
+		Runtime:addEventListener("collision", onCollision )
+		balloon:addEventListener("touch", pushBalloon)
 	end
 end
 
@@ -144,6 +168,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		Runtime:removeEventListener("collision", onCollision )
 		physics.pause()
 	end
 end
@@ -156,11 +181,6 @@ function scene:destroy( event )
 	-- Code here runs prior to the removal of scene's view
 
 end
-
-local function gotoGame( )
-	composer.gotoScene("game")
-end
-
 
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
