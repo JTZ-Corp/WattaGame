@@ -9,6 +9,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local background
+local gameover
 
 
 -- -----------------------------------------------------------------------------------
@@ -21,15 +22,13 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-	background = display.newImageRect(sceneGroup, "background_2.png", 360, 570 )
+	background = display.newImageRect(sceneGroup, "background_3.png", 360, 570 )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	local play = display.newImageRect(sceneGroup, "play_button.png", 200,75 )
-	play.x = display.contentCenterX
-	play.y = display.contentCenterY
-
-	play:addEventListener("tap", gotoGame)
+	gameover = display.newImageRect(sceneGroup, "gameover.png", 240, 150 )
+	gameover.x = display.contentCenterX
+	gameover.y = display.contentCenterY
 end
 
 -- show()

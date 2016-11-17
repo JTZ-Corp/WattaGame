@@ -31,6 +31,7 @@ local border2
 
 --horizontal
 local horizontal
+--local horizontal2
 
 --load physics
 local math, physics = require("math"), require("physics")
@@ -39,21 +40,22 @@ local math, physics = require("math"), require("physics")
 
 function startPhysics( start )
 	if (start) then
-		physics.addBody(ball, "dynamic", { radius = 38, bounce = 0.3})
+		physics.addBody(ball, "dynamic", { radius = 43, bounce = 0.3})
 		physics.addBody(border, "static")
 		physics.addBody(border2, "static")
 		physics.addBody(horizontal, "static")
+		--physics.addBody(horizontal2, "static")
 	end
 end
 
 function addBall( )
-	ball2 = display.newImageRect(mainGroup, "basketball.png", 75, 75)
+	ball2 = display.newImageRect(mainGroup, "basketball.png", 85, 85)
 	ball2.myName = "ball2"
 	ball2.x = display.contentCenterX 
 	ball2.y = display.contentCenterY - 200
 	ball2.alpha = 0.8
 
-	physics.addBody(ball2, "dynamic", { radius = 35, bounce = 0.3})
+	physics.addBody(ball2, "dynamic", { radius = 43, bounce = 0.3})
 	ball2:addEventListener("touch", pushBall2)
 end
 
@@ -72,18 +74,17 @@ local function pushBall( event )
 		normDeltaX = deltaX / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
 		normDeltaY = deltaY / math.sqrt(math.pow(deltaX,2) + math.pow(deltaY,2))
 
-		angle = math.atan2( deltaY, deltaX ) * 180 / math.pi
-
 		ball:applyLinearImpulse( normDeltaX * -0.5, normDeltaY * -0.5, ball.x, ball.y )
 
 		tapCount = tapCount +1
 		tapText.text = tapCount
 
-		if (gravity <= 25 and (tapCount % 5 == 0)) then
+		--[[if (gravity <= 25 and (tapCount % 5 == 0)) then
 			gravity = gravity + .20
 			physics.setGravity(0, gravity)
 			print(gravity)
 		end
+		]]
 
 		if (tapCount == 10) then
 			addBall() 
@@ -107,11 +108,12 @@ function pushBall2( event )
 		tapCount = tapCount +1
 		tapText.text = tapCount
 
-		if (gravity <= 25 and (tapCount % 5 == 0)) then
+		--[[if (gravity <= 25 and (tapCount % 5 == 0)) then
 			gravity = gravity + .20
 			physics.setGravity(0, gravity)
 			print(gravity)
 		end
+		]]
 	end
 end
 --SCENES
@@ -134,7 +136,7 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	ball = display.newImageRect(mainGroup, "basketball.png", 75, 75)
+	ball = display.newImageRect(mainGroup, "basketball.png", 85, 85)
 	ball.myName = "ball"
 	ball.x = display.contentCenterX
 	ball.y = display.contentCenterY
@@ -153,6 +155,11 @@ function scene:create( event )
 	horizontal.myName = "horizontal"
 	horizontal.x = display.contentWidth
 	horizontal.y = display.contentHeight + 100
+
+	--[[horizontal2 = display.newImageRect(backGroup, "horizontal.png", 1000, 1)
+	horizontal2.x = display.contentWidth
+	horizontal2.y = display.contentHeight
+	]]
 
 	tapText = display.newText(uiGroup, tapCount, display.contentCenterX, 20, native.systemFont, 40)
 	tapText:setFillColor(0 ,0, 0)
@@ -176,7 +183,7 @@ end
 
 function endGame()
 	composer.removeScene( "menu" )
-	composer.gotoScene( "menu", {time=800, effect="crossFade"} )
+	composer.gotoScene( "menu", {time=300, effect="fade"} )
 end
 
 -- show()
